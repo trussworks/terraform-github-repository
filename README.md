@@ -1,39 +1,26 @@
 # Terraform GitHub Repository
 
-Creates a GitHub repository with a main branch and a default ruleset.
+Creates a GitHub repository.
 
 This module is very opinionated and possibly not suitable for other use cases.
 
-It creates one or more GitHub repositories with a default branch along with a
-ruleset protecting the main branch.
+It creates one or more GitHub repositories with a ruleset protecting the main branch.
 
 ## Usage
 
 ```hcl
-module "log_groups" {
-  source = "encrypted-cloudwatch-log-group"
+module "repositories" {
+  source = "terraform-github-repository"
 
-  log_groups = [
+  repositories = [
     {
-      name              = "/foo/test3"
-      retention_in_days = 90
-      kms_key_id        = aws_kms_key.special_ke.arn
+      name = "test"
     },
     {
-      name              = "/bar/test2"
-      kms_key_id        = aws_kms_key.cloudwatch.arn
-      retention_in_days = 365
-    },
-    {
-      name              = "/fubar/test/3"
-      retention_in_days = 14
-    },
-    {
-      name = "/ohmy/test3/3"
+      name = "test2"
+      repo_visibility = "public"
     }
   ]
-
-  kms_alias = "super-secret"
 }
 
 ```

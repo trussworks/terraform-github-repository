@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    "prettier-plugin-sh",
+    "prettier-plugin-pkg"
+  ],
+  "overrides": [
+    {
+      "files": ["*.md"],
+      "options": {
+        "embeddedLanguageFormatting": "off"
+      }
+    }
+  ]
+}

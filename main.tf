@@ -18,7 +18,7 @@ resource "github_repository" "repository" {
   is_template                 = each.value.is_template
   merge_commit_message        = "PR_BODY"
   merge_commit_title          = "PR_TITLE"
-  name                        = each.value.repo_name
+  name                        = each.value.name
   squash_merge_commit_message = "COMMIT_MESSAGES"
   squash_merge_commit_title   = "PR_TITLE"
   topics                      = []
@@ -27,21 +27,11 @@ resource "github_repository" "repository" {
   web_commit_signoff_required = each.value.web_commit_signoff_required
 }
 
-resource "github_branch" "branch" {
-  branch        = var.default_branch_name
-  repository    = var.repo_name
-  source_branch = var.default_branch_name
-}
-
-resource "github_branch_default" "default_branch" {
-  repository = github_repository.this.name
-  branch     = github_branch.this.branch
-}
-
 resource "github_repository_ruleset" "ruleset" {
+  for_each    = { for repo in var.repositories : repo.name => repo }
   enforcement = "active"
   name        = var.default_branch_name
-  repository  = github_repository.this.name
+  repository  = github_repository.repository[each.key].name
   target      = "branch"
 
   # https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset#bypass_actors
