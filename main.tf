@@ -7,7 +7,7 @@ locals {
   }
 }
 
-resource "github_repository" "this" {
+resource "github_repository" "repository" {
   allow_auto_merge            = var.allow_auto_merge
   allow_merge_commit          = var.allow_merge_commit
   allow_rebase_merge          = var.allow_rebase_merge
@@ -34,11 +34,11 @@ resource "github_repository" "this" {
   web_commit_signoff_required = var.web_commit_signoff_required
 }
 
-resource "github_repository_ruleset" "this" {
+resource "github_repository_ruleset" "ruleset" {
   count       = var.enable_default_ruleset ? 1 : 0
   enforcement = "active"
   name        = var.default_branch_name
-  repository  = github_repository.this.name
+  repository  = github_repository.repository.name
   target      = "branch"
 
   bypass_actors {
@@ -77,9 +77,9 @@ resource "github_repository_ruleset" "this" {
   }
 }
 
-resource "github_repository_autolink_reference" "this" {
+resource "github_repository_autolink_reference" "autolink_reference" {
   count               = var.autolink_reference_prefix != "" && var.autolink_reference_url_template != "" ? 1 : 0
-  repository          = github_repository.this.name
+  repository          = github_repository.repository.name
   key_prefix          = var.autolink_reference_prefix
   target_url_template = var.autolink_reference_url_template
 }
