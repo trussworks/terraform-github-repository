@@ -1,43 +1,48 @@
-resource "github_repository" "repository" {
-  for_each = { for repo in var.repositories : repo.name => repo }
+locals {
+  github_repository_role = {
+    org_admin = 1
+    maintain  = 2
+    write     = 4
+    admin     = 5
+  }
+}
 
-  allow_auto_merge            = each.value.allow_auto_merge
-  allow_merge_commit          = each.value.allow_merge_commit
-  allow_rebase_merge          = each.value.allow_rebase_merge
-  allow_squash_merge          = each.value.allow_squash_merge
-  allow_update_branch         = each.value.allow_update_branch
-  archived                    = each.value.archived
-  auto_init                   = each.value.auto_init
-  delete_branch_on_merge      = each.value.delete_branch_on_merge
-  description                 = each.value.repo_description
-  has_discussions             = each.value.has_discussions
-  has_downloads               = each.value.has_downloads
-  has_issues                  = each.value.has_issues
-  has_projects                = each.value.has_projects
-  has_wiki                    = each.value.has_wiki
-  is_template                 = each.value.is_template
-  merge_commit_message        = "PR_BODY"
-  merge_commit_title          = "PR_TITLE"
-  name                        = each.value.name
-  squash_merge_commit_message = "COMMIT_MESSAGES"
-  squash_merge_commit_title   = "PR_TITLE"
-  topics                      = []
-  visibility                  = each.value.repo_visibility
-  vulnerability_alerts        = each.value.vulnerability_alerts
-  web_commit_signoff_required = each.value.web_commit_signoff_required
+resource "github_repository" "repository" {
+  allow_auto_merge            = var.allow_auto_merge
+  allow_merge_commit          = var.allow_merge_commit
+  allow_rebase_merge          = var.allow_rebase_merge
+  allow_squash_merge          = var.allow_squash_merge
+  allow_update_branch         = var.allow_update_branch
+  archived                    = var.archived
+  auto_init                   = var.auto_init
+  delete_branch_on_merge      = var.delete_branch_on_merge
+  description                 = var.description
+  has_discussions             = var.has_discussions
+  has_downloads               = var.has_downloads
+  has_issues                  = var.has_issues
+  has_projects                = var.has_projects
+  has_wiki                    = var.has_wiki
+  is_template                 = var.is_template
+  merge_commit_message        = var.allow_merge_commit ? "PR_BODY" : null
+  merge_commit_title          = var.allow_merge_commit ? "PR_TITLE" : null
+  name                        = var.name
+  squash_merge_commit_message = var.allow_squash_merge ? "COMMIT_MESSAGES" : null
+  squash_merge_commit_title   = var.allow_squash_merge ? "PR_TITLE" : null
+  topics                      = var.topics
+  visibility                  = var.visibility
+  vulnerability_alerts        = var.vulnerability_alerts
+  web_commit_signoff_required = var.web_commit_signoff_required
 }
 
 resource "github_repository_ruleset" "ruleset" {
-  for_each    = { for repo in var.repositories : repo.name => repo }
+  count       = var.enable_default_ruleset ? 1 : 0
   enforcement = "active"
   name        = var.default_branch_name
-  repository  = github_repository.repository[each.key].name
+  repository  = github_repository.repository.name
   target      = "branch"
 
-  # https://registry.terraform.io/providers/integrations/github/latest/docs/resources/repository_ruleset#bypass_actors
-  # Org Admin = 1, maintain = 2, write = 4, admin = 5
   bypass_actors {
-    actor_id    = 5
+    actor_id    = local.github_repository_role.admin
     actor_type  = "RepositoryRole"
     bypass_mode = "always"
   }
@@ -51,21 +56,30 @@ resource "github_repository_ruleset" "ruleset" {
     }
   }
 
+  # Available rules for rulesets:
+  # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets
   rules {
-    creation                      = false
-    deletion                      = true
-    non_fast_forward              = true
-    required_linear_history       = true
-    required_signatures           = true
-    update                        = false
-    update_allows_fetch_and_merge = false
+    creation                      = var.rules_creation
+    deletion                      = var.rules_deletion
+    non_fast_forward              = var.rules_non_fast_forward
+    required_linear_history       = var.rules_required_linear_history
+    required_signatures           = var.rules_required_signatures
+    update                        = var.rules_update
+    update_allows_fetch_and_merge = var.rules_update_allows_fetch_and_merge
 
     pull_request {
-      dismiss_stale_reviews_on_push     = true
-      require_code_owner_review         = false
-      require_last_push_approval        = false
-      required_approving_review_count   = 0
-      required_review_thread_resolution = false
+      dismiss_stale_reviews_on_push     = var.pr_dismiss_stale_reviews_on_push
+      require_code_owner_review         = var.pr_require_code_owner_review
+      require_last_push_approval        = var.pr_require_last_push_approval
+      required_approving_review_count   = var.pr_required_approving_review_count
+      required_review_thread_resolution = var.pr_required_review_thread_resolution
     }
   }
+}
+
+resource "github_repository_autolink_reference" "autolink_reference" {
+  count               = var.autolink_reference_prefix != "" && var.autolink_reference_url_template != "" ? 1 : 0
+  repository          = github_repository.repository.name
+  key_prefix          = var.autolink_reference_prefix
+  target_url_template = var.autolink_reference_url_template
 }

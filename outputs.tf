@@ -1,14 +1,14 @@
 output "repository_name" {
-  description = "Map of repository names"
-  value       = { for key, repo in github_repository.repository : key => repo.name }
+  description = "Repository name"
+  value       = github_repository.repository.name
 }
 
-output "repository_urls" {
-  description = "Map of repository URLs"
-  value       = { for key, repo in github_repository.repository : key => repo.html_url }
+output "repository_url" {
+  description = "Repository URL"
+  value       = github_repository.repository.html_url
 }
 
-output "repository_ids" {
-  description = "Map of repository IDs"
-  value       = { for key, repo in github_repository.repository : key => repo.id }
+output "repository_id" {
+  description = "Repository ID"
+  value       = github_repository.repository.id
 }
