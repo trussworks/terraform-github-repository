@@ -18,8 +18,8 @@ importers:
         specifier: ^0.0.15
         version: 0.0.15(prettier@3.5.3)
       prettier-plugin-pkg:
-        specifier: ^0.20.0
-        version: 0.20.0(prettier@3.5.3)
+        specifier: ^0.21.0
+        version: 0.21.2(prettier@3.5.3)
       prettier-plugin-sh:
         specifier: ^0.17.4
         version: 0.17.4(prettier@3.5.3)
@@ -117,8 +117,8 @@ packages:
     peerDependencies:
       prettier: ^3.0.0
 
-  prettier-plugin-pkg@0.20.0:
-    resolution: {integrity: sha512-SOMC6CweLsSAmbtaZJcv8z9oHY7okHrHm9WW0r9xYIdUJQJS3aw8pUUdve6Typ1fiBQM9roc2U3s6K5ud5oyaA==}
+  prettier-plugin-pkg@0.21.2:
+    resolution: {integrity: sha512-CSlM5+51B7yTKcoRWT4M3ImcdFHD5NUz0Xu2t8J03B761zu6J3BjSo/XleKp2kB0tH49K7oG5Uuqn6ldI5LRLg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       prettier: ^3.0.3
@@ -168,7 +168,7 @@ snapshots:
       prettier: 3.5.3
       ulid: 2.4.0
 
-  prettier-plugin-pkg@0.20.0(prettier@3.5.3):
+  prettier-plugin-pkg@0.21.2(prettier@3.5.3):
     dependencies:
       prettier: 3.5.3
 
